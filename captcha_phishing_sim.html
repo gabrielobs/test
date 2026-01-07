@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica di Sicurezza - reCAPTCHA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #e8f4f8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 0;
+            box-shadow: 0 0 0 1px #c0c0c0, 0 2px 8px rgba(0, 0, 0, 0.15);
+            max-width: 550px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #0078d4;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            font-size: 19px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .windows-flag {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2.5px;
+        }
+
+        .windows-flag div {
+            background: white;
+        }
+
+        .timer {
+            background: #2196F3;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            border-bottom: 1px solid #1976D2;
+        }
+
+        .content {
+            padding: 35px;
+        }
+
+        .instruction {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .recaptcha-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .recaptcha-logo {
+            width: 32px;
+            height: 32px;
+            background: #4285f4;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .confirmation-id {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .steps {
+            background: #f8f9fa;
+            border: 1px solid #d0d0d0;
+            border-radius: 0;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 0;
+            border-left: 4px solid #0078d4;
+            border: 1px solid #d0d0d0;
+            border-left: 4px solid #0078d4;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-number {
+            background: #0078d4;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .step-detail {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .keyboard-key {
+            display: inline-block;
+            background: #f0f0f0;
+            border: 1px solid #a0a0a0;
+            border-radius: 0;
+            padding: 2px 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 1px 0 #999, inset 0 1px 0 #fff;
+            margin: 0 2px;
+        }
+
+        .command-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            word-wrap: break-word;
+            border: 1px solid #0078d4;
+            position: relative;
+        }
+
+        .command-label {
+            font-size: 11px;
+            color: #0078d4;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 25px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 0;
+            border: 2px solid #0078d4;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .button {
+            background: #0078d4;
+            color: white;
+            border: 1px solid #005a9e;
+            padding: 14px 30px;
+            border-radius: 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: #106ebe;
+        }
+
+        .button:active {
+            background: #005a9e;
+        }
+
+        .button:disabled {
+            background: #cccccc;
+            border-color: #999999;
+            cursor: not-allowed;
+        }
+
+        .captcha-icon {
+            text-align: center;
+            font-size: 48px;
+            margin: 15px 0;
+        }
+
+        .warning-text {
+            color: #d13438;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="windows-flag">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            Completa i seguenti PASSAGGI DI VERIFICA
+        </div>
+        
+        <div class="timer" id="timer">
+            Tempo rimanente: 02:00
+        </div>
+
+        <div class="content">
+            <div class="captcha-icon">🔒</div>
+            
+            <div class="recaptcha-badge">
+                <div class="recaptcha-logo">rC</div>
+                <span><strong>reCAPTCHA</strong> Verifica di sicurezza</span>
+            </div>
+
+            <div class="confirmation-id" id="confirmationId">
+                Confirmation ID: 
+            </div>
+            
+            <div class="instruction">
+                <strong>Per dimostrare di non essere un robot esegui i seguenti passaggi:</strong>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">1</span>
+                        Accedi alla verifica manuale
+                    </div>
+                    <div class="step-detail">
+                        Tieni premuto <span class="keyboard-key">⊞ Win</span> e premi <span class="keyboard-key">R</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">2</span>
+                        Conferma tramite il tasto di validazione
+                    </div>
+                    <div class="step-detail">
+                        Clicca sul pulsante <span class="keyboard-key">Non Sono un Robot</span> per procedere con la verifica
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">3</span>
+                        Completa la verifica
+                    </div>
+                    <div class="step-detail">
+                        Nella finestra "Esegui" concludi la sequenza di verifica con i seguenti tasti <span class="keyboard-key">Ctrl</span> + <span class="keyboard-key">V</span> e <span class="keyboard-key">Invio</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="acceptCheckbox" class="checkbox" onchange="toggleButton()">
+                <label for="acceptCheckbox" class="checkbox-label">
+                    ✓ Accetto e Sottoscrivo di non essere un robot - reCAPTCHA Confirmation ID: <span id="confirmationId2"></span>
+                </label>
+            </div>
+
+            <div class="warning-text">
+                La verifica scadrà tra <span id="timer-inline">120</span> secondi
+            </div>
+
+            <button class="button" id="submitBtn" disabled onclick="showWarning()">
+                Conferma Verifica reCAPTCHA
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 120;
+        
+        // Genera ID casuale
+        function generateRandomId() {
+            return Math.floor(1000000 + Math.random() * 9000000);
+        }
+
+        const randomId = generateRandomId();
+        document.getElementById('confirmationId').textContent = 'Confirmation ID: ' + randomId;
+        document.getElementById('confirmationId2').textContent = randomId;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timer').textContent = `Tempo rimanente: ${timerText}`;
+            document.getElementById('timer-inline').textContent = timeLeft;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                location.reload();
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+
+        function toggleButton() {
+            const checkbox = document.getElementById('acceptCheckbox');
+            const button = document.getElementById('submitBtn');
+            button.disabled = !checkbox.checked;
+        }
+
+        function showWarning() {
+            // TRACCIAMENTO GOPHISH - Submitted Data
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{.URL}}';
+    
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'rid';
+            input.value = '{{.RId}}';
+    
+            form.appendChild(input);
+            document.body.appendChild(form);
+    
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form)
+            }).catch(err => console.log('Tracking error:', err));
+    
+            document.body.removeChild(form);
+
+            document.body.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px;">
+            <h2 style="color: #0078d4; margin-bottom: 20px;">Verifica completata</h2>
+            <p style="font-size: 18px; color: #333; margin-bottom: 30px;">Reindirizzamento in corso...</p>
+            <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #0078d4; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            </div>
+            `;
+    
+            // Redirect dopo 2 secondi
+            setTimeout(function() {
+                window.location.href = 'https://www.observere.com/';
+            }, 2000);
+            
+        }
+    </script>
+</body>
+</html>
